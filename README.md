@@ -45,6 +45,8 @@ brew install colima docker kubectl jq
    - Build the necessary Docker images
    - Deploy all services to your Kubernetes cluster
    - Configure routing through an Ingress controller
+   - Set up monitoring with Prometheus and Grafana
+   - Configure horizontal pod autoscalers (HPA) for dynamic scaling
 
 4. Access the application:
    - Add the Colima IP to your hosts file pointing to `healthcare.local`
@@ -63,7 +65,7 @@ colima start --kubernetes
 kubectl apply -f kubernetes/config-map.yaml
 
 # Deploy MongoDB
-kubectl apply -f kubernetes/mongodb-deployment.yaml
+kubectl apply -f kubernetes/mongodb-statefulset.yaml
 
 # Deploy Backend API
 kubectl apply -f kubernetes/backend-deployment.yaml
@@ -73,6 +75,22 @@ kubectl apply -f kubernetes/frontend-deployment.yaml
 
 # Configure Ingress
 kubectl apply -f kubernetes/ingress.yaml
+
+# Deploy Prometheus for monitoring
+kubectl apply -f kubernetes/prometheus.yaml
+
+# Deploy Grafana for visualization
+kubectl apply -f kubernetes/grafana.yaml
+
+# Deploy Node Exporter for host metrics
+kubectl apply -f kubernetes/node-exporter.yaml
+
+# Deploy Kube State Metrics for Kubernetes metrics
+kubectl apply -f kubernetes/kube-state-metrics.yaml
+
+# Apply Horizontal Pod Autoscalers
+kubectl apply -f kubernetes/backend-hpa.yaml
+kubectl apply -f kubernetes/frontend-hpa.yaml
 ```
 
 ### Kubernetes Architecture
@@ -84,6 +102,81 @@ The application in Kubernetes consists of:
 - **PersistentVolumeClaim** for MongoDB data persistence
 - **Ingress** for external access and routing
 - **ConfigMap** for configuration management
+- **HPA** for automatic scaling based on resource utilization
+- **Prometheus & Grafana** for monitoring and visualization
+
+## Monitoring and Observability
+
+### Prometheus
+
+The application includes Prometheus for metrics collection and monitoring:
+
+- Collects metrics from services via service endpoints
+- Monitors Kubernetes cluster health and performance
+- Stores time-series data for analysis
+- Provides alerting capabilities
+
+To access Prometheus UI:
+
+```bash
+kubectl port-forward svc/prometheus-service 9090:9090
+```
+
+Then visit http://localhost:9090 in your browser.
+
+### Grafana
+
+Grafana is deployed for visualizing metrics and creating dashboards:
+
+- Pre-configured dashboards for monitoring application services
+- Real-time visualization of performance metrics
+- Customizable alerts and notifications
+- Integration with Prometheus data source
+
+To access Grafana:
+
+```bash
+kubectl port-forward svc/grafana 3000:3000
+```
+
+Then visit http://localhost:3000 in your browser.
+- Default credentials: admin/admin (you'll be prompted to change on first login)
+
+### Default Dashboards
+
+The Grafana deployment includes several pre-configured dashboards:
+- Kubernetes Cluster Overview
+- Node Resource Utilization
+- MongoDB Performance
+- Backend API Performance
+- Frontend Metrics
+
+## Auto Scaling with HPA
+
+The application uses Horizontal Pod Autoscaler (HPA) to automatically scale services based on resource usage:
+
+- **Backend HPA**: Scales backend pods based on CPU utilization
+  - Target CPU utilization: 80%
+  - Min replicas: 1
+  - Max replicas: 10
+
+- **Frontend HPA**: Scales frontend pods based on CPU utilization
+  - Target CPU utilization: 70% 
+  - Min replicas: 2
+  - Max replicas: 8
+
+To view current HPA status:
+
+```bash
+kubectl get hpa
+```
+
+To modify HPA settings:
+
+```bash
+kubectl edit hpa backend-hpa
+kubectl edit hpa frontend-hpa
+```
 
 ## API Endpoints
 
