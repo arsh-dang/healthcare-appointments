@@ -18,7 +18,6 @@ data:
     
     // Create initial collections
     db.createCollection('appointments');
-    db.createCollection('meetups');
     
     // Insert some initial data if desired
     db.appointments.insertOne({

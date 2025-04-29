@@ -188,12 +188,6 @@ kubectl edit hpa frontend-hpa
 - `PUT /api/appointments/:id` - Update an appointment
 - `DELETE /api/appointments/:id` - Delete an appointment
 
-### Meetups
-
-- `GET /api/meetups` - List all meetups
-- `POST /api/meetups` - Create a new meetup
-- `GET /api/meetups/:id` - Get a specific meetup
-
 ## Scaling
 
 With Kubernetes, you can easily scale any component:
